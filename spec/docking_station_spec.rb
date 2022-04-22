@@ -12,7 +12,7 @@ describe DockingStation do
     end
 
     it 'raises an error when there are no bikes' do
-      expect { subject.release_bike }.to raise_error 'No bike available'
+      expect { subject.release_bike }.to raise_error 'No bikes available'
     end
 
   end
@@ -21,12 +21,12 @@ describe DockingStation do
 
     it 'dock bike at docking station' do
       bike = Bike.new
-      expect(subject.dock(bike)).to eq bike
+      expect(subject.dock(bike)).to eq [bike]
     end
 
     it 'raises an error when docking station reaches capacity' do
-      20.times { subject.dock(Bike.new) }
-      expect { subject.dock(Bike.new) }.to raise_error 'Capacity reached'
+      subject.capacity.times { subject.dock Bike.new }
+      expect { subject.dock Bike.new }.to raise_error 'Capacity reached'
     end
 
   end
@@ -34,13 +34,23 @@ describe DockingStation do
   it 'is there a bike at the docking station' do
     bike = Bike.new
     subject.dock(bike) 
-    expect(subject.bikes).to eq [bike]
+    expect(subject.bikes).to eq bike
+  end
+
+  it 'has a default capacity' do
+    expect(subject.capacity).to eq DockingStation::DEFAULT_CAPACITY
+  end
+
+  describe 'initialization' do
+    subject { DockingStation.new }
+    let(:bike) { Bike.new }
+    it 'defaults capacity' do
+      described_class::DEFAULT_CAPACITY.times do
+        subject.dock(bike)
+      end
+      expect{ subject.dock(bike) }.to raise_error 'Capacity reached'
+    end
   end
 
   
 end
-
-
-#As a member of the public,
-#So that I am not confused and charged unnecessarily,
-#I'd like docking stations not to release bikes when there are none available.
